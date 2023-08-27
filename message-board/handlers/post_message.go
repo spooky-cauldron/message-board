@@ -9,6 +9,7 @@ import (
 	"message-board/msg"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
@@ -20,12 +21,8 @@ type PostMessageBody struct {
 	Text string `json:"text"`
 }
 
-func (handler *PostMessagesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if err := AssertPost(w, r); err != nil {
-		return
-	}
-
-	bodyData, err := io.ReadAll(r.Body)
+func (handler *PostMessagesHandler) Handler(c *gin.Context) {
+	bodyData, err := io.ReadAll(c.Request.Body)
 	check(err)
 
 	var body PostMessageBody
@@ -33,7 +30,7 @@ func (handler *PostMessagesHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 	check(err)
 
 	message := InsertMessage(handler.Db, body.Text)
-	WriteJson(message, w)
+	c.JSON(http.StatusOK, message)
 }
 
 func InsertMessage(db *sql.DB, text string) msg.Message {

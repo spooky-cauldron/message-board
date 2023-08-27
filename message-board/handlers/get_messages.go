@@ -4,19 +4,17 @@ import (
 	"database/sql"
 	"message-board/msg"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type GetMessagesHandler struct {
 	Db *sql.DB
 }
 
-func (h *GetMessagesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if err := AssertGet(w, r); err != nil {
-		return
-	}
-
+func (h *GetMessagesHandler) Handler(c *gin.Context) {
 	messages := queryMessages(h.Db)
-	WriteJson(messages, w)
+	c.JSON(http.StatusOK, messages)
 }
 
 func queryMessages(db *sql.DB) []msg.Message {

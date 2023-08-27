@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"message-board/msg"
 	"net/http"
 
@@ -16,10 +17,10 @@ type PostMessagesHandler struct {
 }
 
 type PostMessageBody struct {
-	Name string `json:"name"`
+	Text string `json:"text"`
 }
 
-func (h *PostMessagesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (handler *PostMessagesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if err := AssertPost(w, r); err != nil {
 		return
 	}
@@ -31,25 +32,24 @@ func (h *PostMessagesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 	err = json.Unmarshal(bodyData, &body)
 	check(err)
 
-	message := InsertMessage(h.Db, body.Name)
+	message := InsertMessage(handler.Db, body.Text)
 	WriteJson(message, w)
 }
 
-func InsertMessage(db *sql.DB, name string) msg.Message {
-	createMessage := "INSERT INTO messages(id, name) VALUES (?, ?)"
+func InsertMessage(db *sql.DB, text string) msg.Message {
+	createMessage := "INSERT INTO messages(id, text) VALUES (?, ?)"
 	stmt, err := db.Prepare(createMessage)
 	check(err)
 
 	id := uuid.New()
-	fmt.Println("id")
-	fmt.Println(id)
+	log.Printf("Adding message %s to database.\n", id)
 
-	res, err := stmt.Exec(id, name)
+	res, err := stmt.Exec(id, text)
 	check(err)
 	fmt.Println(res.LastInsertId())
 
 	return msg.Message{
 		Id:   id,
-		Name: name,
+		Text: text,
 	}
 }

@@ -20,14 +20,14 @@ func (h *GetMessagesHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func queryMessages(db *sql.DB) []msg.Message {
-	rows, err := db.Query("SELECT id, name FROM messages")
+	rows, err := db.Query("SELECT id, text FROM messages")
 	check(err)
 	defer rows.Close()
 
 	var messages []msg.Message
 	for rows.Next() {
 		var message msg.Message
-		err := rows.Scan(&message.Id, &message.Name)
+		err := rows.Scan(&message.Id, &message.Text)
 		check(err)
 		messages = append(messages, message)
 	}
@@ -35,8 +35,8 @@ func queryMessages(db *sql.DB) []msg.Message {
 }
 
 func queryMessage(db *sql.DB) msg.Message {
-	queryRow := db.QueryRow("SELECT id, name FROM messages")
+	queryRow := db.QueryRow("SELECT id, text FROM messages")
 	var message msg.Message
-	queryRow.Scan(&message.Id, &message.Name)
+	queryRow.Scan(&message.Id, &message.Text)
 	return message
 }

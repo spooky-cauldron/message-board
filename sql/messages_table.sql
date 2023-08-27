@@ -1,4 +1,4 @@
 CREATE TABLE 'messages' (
     'id' UUID,
-    'name' VARCHAR(64)
+    'text' VARCHAR(64)
 )

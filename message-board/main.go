@@ -2,11 +2,9 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"message-board/database"
 	"message-board/handlers"
-
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -15,8 +13,7 @@ import (
 
 func main() {
 	db := database.InitSqlite()
-
-	handlers.InsertMessage(db, "hi")
+	database.InsertMessage(db, "test message")
 
 	r := gin.Default()
 
@@ -29,14 +26,8 @@ func main() {
 	err := r.Run("localhost:8000")
 
 	if errors.Is(err, http.ErrServerClosed) {
-		fmt.Println("Server closed.")
+		log.Println("Server closed.")
 	} else if err != nil {
 		log.Fatalf("error starting server: %s\n", err)
 	}
 }
-
-// func check(err error) {
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// }

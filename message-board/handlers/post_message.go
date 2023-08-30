@@ -25,5 +25,5 @@ func (handler *PostMessagesHandler) Handler(c *gin.Context) {
 	}
 
 	message := database.InsertMessage(handler.Db, body.Text)
-	c.JSON(http.StatusOK, message)
+	c.JSON(http.StatusCreated, message)
 }

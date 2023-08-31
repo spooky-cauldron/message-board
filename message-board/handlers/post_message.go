@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"database/sql"
 	"message-board/database"
 	"net/http"
 
@@ -9,7 +8,7 @@ import (
 )
 
 type PostMessagesHandler struct {
-	Db *sql.DB
+	Service *database.MessageService
 }
 
 type PostMessageBody struct {
@@ -24,6 +23,6 @@ func (handler *PostMessagesHandler) Handler(c *gin.Context) {
 		return
 	}
 
-	message := database.InsertMessage(handler.Db, body.Text)
+	message := handler.Service.InsertMessage(body.Text)
 	c.JSON(http.StatusCreated, message)
 }

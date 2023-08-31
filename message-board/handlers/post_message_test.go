@@ -15,7 +15,8 @@ import (
 
 func TestPostMessageHandler(t *testing.T) {
 	db := database.InitSqlite()
-	handler := PostMessagesHandler{Db: db}
+	service := database.NewMessageService(db)
+	handler := PostMessagesHandler{Service: service}
 
 	r := gin.Default()
 	r.POST("/messages", handler.Handler)
@@ -40,7 +41,8 @@ func TestPostMessageHandler(t *testing.T) {
 
 func TestPostMessageHandlerMissingData(t *testing.T) {
 	db := database.InitSqlite()
-	handler := PostMessagesHandler{Db: db}
+	service := database.NewMessageService(db)
+	handler := PostMessagesHandler{Service: service}
 
 	r := gin.Default()
 	r.POST("/messages", handler.Handler)

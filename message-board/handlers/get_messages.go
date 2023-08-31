@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"database/sql"
 	"message-board/database"
 	"net/http"
 
@@ -9,10 +8,10 @@ import (
 )
 
 type GetMessagesHandler struct {
-	Db *sql.DB
+	Service *database.MessageService
 }
 
 func (h *GetMessagesHandler) Handler(c *gin.Context) {
-	messages := database.QueryMessages(h.Db)
+	messages := h.Service.QueryMessages()
 	c.JSON(http.StatusOK, messages)
 }

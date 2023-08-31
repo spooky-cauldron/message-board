@@ -8,19 +8,27 @@ import (
 	"github.com/google/uuid"
 )
 
-func InsertMessage(db *sql.DB, text string) msg.Message {
+type MessageService struct {
+	db *sql.DB
+}
+
+func NewMessageService(db *sql.DB) *MessageService {
+	return &MessageService{db: db}
+}
+
+func (service *MessageService) InsertMessage(text string) msg.Message {
 	createMessage := "INSERT INTO messages(id, text) VALUES (?, ?)"
 	id := uuid.New()
 	log.Printf("Adding message %s to database.\n", id)
 
-	_, err := db.Exec(createMessage, id, text)
+	_, err := service.db.Exec(createMessage, id, text)
 	check(err)
 
 	return msg.Message{Id: id, Text: text}
 }
 
-func QueryMessages(db *sql.DB) []msg.Message {
-	rows, err := db.Query("SELECT id, text FROM messages")
+func (service *MessageService) QueryMessages() []msg.Message {
+	rows, err := service.db.Query("SELECT id, text FROM messages")
 	check(err)
 	defer rows.Close()
 
@@ -34,8 +42,8 @@ func QueryMessages(db *sql.DB) []msg.Message {
 	return messages
 }
 
-func QueryMessage(db *sql.DB) msg.Message {
-	queryRow := db.QueryRow("SELECT id, text FROM messages")
+func (service *MessageService) QueryMessage() msg.Message {
+	queryRow := service.db.QueryRow("SELECT id, text FROM messages")
 	var message msg.Message
 	queryRow.Scan(&message.Id, &message.Text)
 	return message

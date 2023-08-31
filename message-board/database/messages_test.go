@@ -9,8 +9,9 @@ import (
 
 func TestInsertMessage(t *testing.T) {
 	db := InitSqlite()
+	service := NewMessageService(db)
 	testMessageText := "testing message"
-	inserted := InsertMessage(db, testMessageText)
+	inserted := service.InsertMessage(testMessageText)
 
 	messageText := inserted.Text
 	assert.Equal(t, messageText, testMessageText)
@@ -18,10 +19,11 @@ func TestInsertMessage(t *testing.T) {
 
 func TestQueryMessages(t *testing.T) {
 	db := InitSqlite()
+	service := NewMessageService(db)
 	testMessageText := "testing message"
-	InsertMessage(db, testMessageText)
+	service.InsertMessage(testMessageText)
 
-	messages := QueryMessages(db)
+	messages := service.QueryMessages()
 	assert.Len(t, messages, 1)
 
 	message := messages[0]

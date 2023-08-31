@@ -12,14 +12,15 @@ import (
 
 func main() {
 	db := database.InitSqlite()
-	database.InsertMessage(db, "test message")
+	messageService := database.NewMessageService(db)
+	messageService.InsertMessage("test message")
 
 	r := gin.Default()
 
-	getMessageHandler := handlers.GetMessagesHandler{Db: db}
+	getMessageHandler := handlers.GetMessagesHandler{Service: messageService}
 	r.GET("/message", getMessageHandler.Handler)
 
-	postMessageHandler := handlers.PostMessagesHandler{Db: db}
+	postMessageHandler := handlers.PostMessagesHandler{Service: messageService}
 	r.POST("/message", postMessageHandler.Handler)
 
 	err := r.Run("localhost:8000")

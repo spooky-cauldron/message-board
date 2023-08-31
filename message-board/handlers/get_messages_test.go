@@ -14,8 +14,9 @@ import (
 
 func TestGetMessageHandler(t *testing.T) {
 	db := database.InitSqlite()
-	database.InsertMessage(db, "test message")
-	handler := GetMessagesHandler{Db: db}
+	service := database.NewMessageService(db)
+	service.InsertMessage("test message")
+	handler := GetMessagesHandler{Service: service}
 
 	r := gin.Default()
 	r.GET("/messages", handler.Handler)
@@ -35,7 +36,8 @@ func TestGetMessageHandler(t *testing.T) {
 
 func TestGetMessageHandlerEmptyResponse(t *testing.T) {
 	db := database.InitSqlite()
-	handler := GetMessagesHandler{Db: db}
+	service := database.NewMessageService(db)
+	handler := GetMessagesHandler{Service: service}
 
 	r := gin.Default()
 	r.GET("/messages", handler.Handler)

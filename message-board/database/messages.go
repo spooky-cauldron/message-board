@@ -14,6 +14,7 @@ type MessageService struct {
 	insertStmt *sql.Stmt
 	queryStmt  *sql.Stmt
 	updateStmt *sql.Stmt
+	deleteStmt *sql.Stmt
 }
 
 var ErrNotFound = errors.New("not found")
@@ -31,11 +32,15 @@ func NewMessageService(db *sql.DB) *MessageService {
 	updateStmt, err := db.Prepare(updateMessage)
 	check(err)
 
+	deleteMessage := "DELETE FROM messages WHERE id=?"
+	deleteStmt, err := db.Prepare(deleteMessage)
+
 	return &MessageService{
 		db:         db,
 		insertStmt: insertStmt,
 		queryStmt:  queryStmt,
 		updateStmt: updateStmt,
+		deleteStmt: deleteStmt,
 	}
 }
 
@@ -81,4 +86,15 @@ func (service *MessageService) UpdateMessage(id uuid.UUID, text string) (msg.Mes
 	check(err)
 
 	return msg.Message{Id: id, Text: text}, nil
+}
+
+func (service *MessageService) DeleteMessage(id uuid.UUID) error {
+	message := service.QueryMessage(id)
+	if message.Id == uuid.Nil {
+		return ErrNotFound
+	}
+
+	_, err := service.deleteStmt.Exec(id)
+	check(err)
+	return nil
 }

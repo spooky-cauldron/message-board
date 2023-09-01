@@ -59,3 +59,26 @@ func TestUpdateMessageNotFound(t *testing.T) {
 	assert.NotEqual(t, updatedText, updatedMessage.Text)
 	assert.Equal(t, uuid.Nil, updatedMessage.Id)
 }
+
+func TestDeleteMessage(t *testing.T) {
+	db := InitSqliteMem()
+	service := NewMessageService(db)
+	initialText := "delete message"
+	message := service.InsertMessage(initialText)
+
+	assert.Equal(t, initialText, message.Text)
+
+	err := service.DeleteMessage(message.Id)
+	assert.Equal(t, nil, err)
+
+	deleted := service.QueryMessage(message.Id)
+	assert.Equal(t, uuid.Nil, deleted.Id)
+}
+
+func TestDeleteMessageNotFound(t *testing.T) {
+	db := InitSqliteMem()
+	service := NewMessageService(db)
+
+	err := service.DeleteMessage(uuid.New())
+	assert.Equal(t, ErrNotFound, err)
+}

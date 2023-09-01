@@ -31,3 +31,31 @@ func TestQueryMessages(t *testing.T) {
 
 	assert.NotEqual(t, message.Id, uuid.Nil)
 }
+
+func TestUpdateMessage(t *testing.T) {
+	db := InitSqliteMem()
+	service := NewMessageService(db)
+	initialText := "initial message"
+	message := service.InsertMessage(initialText)
+
+	assert.Equal(t, initialText, message.Text)
+
+	updatedText := "updated"
+	updatedMessage, err := service.UpdateMessage(message.Id, updatedText)
+
+	assert.Equal(t, nil, err)
+	assert.Equal(t, updatedText, updatedMessage.Text)
+	assert.NotEqual(t, message.Text, updatedMessage.Text)
+}
+
+func TestUpdateMessageNotFound(t *testing.T) {
+	db := InitSqliteMem()
+	service := NewMessageService(db)
+
+	updatedText := "updated"
+	updatedMessage, err := service.UpdateMessage(uuid.New(), updatedText)
+
+	assert.Equal(t, ErrNotFound, err)
+	assert.NotEqual(t, updatedText, updatedMessage.Text)
+	assert.Equal(t, uuid.Nil, updatedMessage.Id)
+}

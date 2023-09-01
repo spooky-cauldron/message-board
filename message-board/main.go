@@ -23,6 +23,9 @@ func main() {
 	postMessageHandler := handlers.PostMessagesHandler{Service: messageService}
 	r.POST("/message", postMessageHandler.Handler)
 
+	patchMessageHandler := handlers.PatchMessageHandler{Service: messageService}
+	r.PATCH("/message", patchMessageHandler.Handler)
+
 	err := r.Run("localhost:8000")
 
 	if errors.Is(err, http.ErrServerClosed) {

@@ -26,6 +26,9 @@ func main() {
 	patchMessageHandler := handlers.PatchMessageHandler{Service: messageService}
 	r.PATCH("/message", patchMessageHandler.Handler)
 
+	deleteMessageHandler := handlers.DeleteMessageHandler{Service: messageService}
+	r.DELETE("/message/:id", deleteMessageHandler.Handler)
+
 	err := r.Run("localhost:8000")
 
 	if errors.Is(err, http.ErrServerClosed) {

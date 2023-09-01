@@ -9,26 +9,37 @@ import (
 )
 
 type MessageService struct {
-	db *sql.DB
+	db         *sql.DB
+	insertStmt *sql.Stmt
+	queryStmt  *sql.Stmt
 }
 
 func NewMessageService(db *sql.DB) *MessageService {
-	return &MessageService{db: db}
+	createMessage := "INSERT INTO messages(id, text) VALUES (?, ?)"
+	insertStmt, err := db.Prepare(createMessage)
+	check(err)
+
+	queryMessage := "SELECT id, text FROM messages"
+	queryStmt, err := db.Prepare(queryMessage)
+	check(err)
+
+	return &MessageService{db: db, insertStmt: insertStmt, queryStmt: queryStmt}
 }
 
 func (service *MessageService) InsertMessage(text string) msg.Message {
-	createMessage := "INSERT INTO messages(id, text) VALUES (?, ?)"
 	id := uuid.New()
 	log.Printf("Adding message %s to database.\n", id)
 
-	_, err := service.db.Exec(createMessage, id, text)
+	// _, err := service.db.Exec("INSERT INTO messages(id, text) VALUES (?, ?)", id, text)
+	_, err := service.insertStmt.Exec(id, text)
 	check(err)
 
 	return msg.Message{Id: id, Text: text}
 }
 
 func (service *MessageService) QueryMessages() []msg.Message {
-	rows, err := service.db.Query("SELECT id, text FROM messages")
+	// rows, err := service.db.Query("SELECT id, text FROM messages")
+	rows, err := service.queryStmt.Query()
 	check(err)
 	defer rows.Close()
 

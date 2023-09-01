@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	db := database.InitSqlite()
+	db := database.InitSqliteMem()
 	messageService := database.NewMessageService(db)
 	messageService.InsertMessage("test message")
 

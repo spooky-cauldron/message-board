@@ -5,7 +5,6 @@ import (
 	"log"
 
 	_ "github.com/mattn/go-sqlite3"
-	// "os"
 )
 
 const createTableQuery string = `
@@ -15,13 +14,16 @@ CREATE TABLE 'messages' (
 )
 `
 
-func InitSqlite() *sql.DB {
+func InitSqliteMem() *sql.DB {
 	dbSource := ":memory:"
+	db := InitSqlite(dbSource)
+	db.SetMaxOpenConns(1) // prevent race conditions
+	return db
+}
+
+func InitSqlite(dbSource string) *sql.DB {
 	db, err := sql.Open("sqlite3", dbSource)
 	check(err)
-
-	// createTableQuery, err := os.ReadFile("../sql/messages_table.sql")
-	// check(err)
 
 	_, err = db.Exec(string(createTableQuery))
 	check(err)

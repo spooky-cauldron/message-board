@@ -8,7 +8,7 @@ import (
 )
 
 func TestInsertMessage(t *testing.T) {
-	db := InitSqlite()
+	db := InitSqliteMem()
 	service := NewMessageService(db)
 	testMessageText := "testing message"
 	inserted := service.InsertMessage(testMessageText)
@@ -18,7 +18,7 @@ func TestInsertMessage(t *testing.T) {
 }
 
 func TestQueryMessages(t *testing.T) {
-	db := InitSqlite()
+	db := InitSqliteMem()
 	service := NewMessageService(db)
 	testMessageText := "testing message"
 	service.InsertMessage(testMessageText)

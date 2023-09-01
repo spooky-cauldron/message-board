@@ -13,7 +13,7 @@ import (
 )
 
 func TestGetMessageHandler(t *testing.T) {
-	db := database.InitSqlite()
+	db := database.InitSqliteMem()
 	service := database.NewMessageService(db)
 	service.InsertMessage("test message")
 	handler := GetMessagesHandler{Service: service}
@@ -35,7 +35,7 @@ func TestGetMessageHandler(t *testing.T) {
 }
 
 func TestGetMessageHandlerEmptyResponse(t *testing.T) {
-	db := database.InitSqlite()
+	db := database.InitSqliteMem()
 	service := database.NewMessageService(db)
 	handler := GetMessagesHandler{Service: service}
 

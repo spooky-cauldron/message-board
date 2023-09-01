@@ -48,7 +48,7 @@ func TestPatchMessageHandlerNotFound(t *testing.T) {
 	handler := PatchMessageHandler{Service: service}
 
 	r := gin.Default()
-	r.POST("/messages", handler.Handler)
+	r.PATCH("/messages", handler.Handler)
 
 	body := gin.H{
 		"id":   uuid.New(),

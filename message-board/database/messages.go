@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 	"log"
 	"message-board/msg"
 
@@ -12,7 +13,10 @@ type MessageService struct {
 	db         *sql.DB
 	insertStmt *sql.Stmt
 	queryStmt  *sql.Stmt
+	updateStmt *sql.Stmt
 }
+
+var ErrNotFound = errors.New("not found")
 
 func NewMessageService(db *sql.DB) *MessageService {
 	createMessage := "INSERT INTO messages(id, text) VALUES (?, ?)"
@@ -23,14 +27,22 @@ func NewMessageService(db *sql.DB) *MessageService {
 	queryStmt, err := db.Prepare(queryMessage)
 	check(err)
 
-	return &MessageService{db: db, insertStmt: insertStmt, queryStmt: queryStmt}
+	updateMessage := "UPDATE messages SET text=? WHERE id=?"
+	updateStmt, err := db.Prepare(updateMessage)
+	check(err)
+
+	return &MessageService{
+		db:         db,
+		insertStmt: insertStmt,
+		queryStmt:  queryStmt,
+		updateStmt: updateStmt,
+	}
 }
 
 func (service *MessageService) InsertMessage(text string) msg.Message {
 	id := uuid.New()
 	log.Printf("Adding message %s to database.\n", id)
 
-	// _, err := service.db.Exec("INSERT INTO messages(id, text) VALUES (?, ?)", id, text)
 	_, err := service.insertStmt.Exec(id, text)
 	check(err)
 
@@ -38,7 +50,6 @@ func (service *MessageService) InsertMessage(text string) msg.Message {
 }
 
 func (service *MessageService) QueryMessages() []msg.Message {
-	// rows, err := service.db.Query("SELECT id, text FROM messages")
 	rows, err := service.queryStmt.Query()
 	check(err)
 	defer rows.Close()
@@ -53,9 +64,21 @@ func (service *MessageService) QueryMessages() []msg.Message {
 	return messages
 }
 
-func (service *MessageService) QueryMessage() msg.Message {
-	queryRow := service.db.QueryRow("SELECT id, text FROM messages")
+func (service *MessageService) QueryMessage(id uuid.UUID) msg.Message {
+	queryRow := service.db.QueryRow("SELECT id, text FROM messages WHERE id=?", id)
 	var message msg.Message
 	queryRow.Scan(&message.Id, &message.Text)
 	return message
+}
+
+func (service *MessageService) UpdateMessage(id uuid.UUID, text string) (msg.Message, error) {
+	message := service.QueryMessage(id)
+	if message.Id == uuid.Nil {
+		return msg.Message{}, ErrNotFound
+	}
+
+	_, err := service.updateStmt.Exec(text, id)
+	check(err)
+
+	return msg.Message{Id: id, Text: text}, nil
 }

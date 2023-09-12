@@ -3,10 +3,12 @@ package database
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"message-board/msg"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 type MessageService struct {
@@ -20,7 +22,14 @@ type MessageService struct {
 var ErrNotFound = errors.New("not found")
 
 func NewMessageService(db *sql.DB) *MessageService {
-	createMessage := "INSERT INTO messages(id, text) VALUES (?, ?)"
+	placeholder1 := "?"
+	placeholder2 := "?"
+	if _, isPostgres := db.Driver().(*pq.Driver); isPostgres {
+		placeholder1 = "$1"
+		placeholder2 = "$2"
+		log.Println("Using postgres placeholders.")
+	}
+	createMessage := fmt.Sprintf("INSERT INTO messages(id, text) VALUES (%s, %s)", placeholder1, placeholder2)
 	insertStmt, err := db.Prepare(createMessage)
 	check(err)
 
@@ -28,11 +37,11 @@ func NewMessageService(db *sql.DB) *MessageService {
 	queryStmt, err := db.Prepare(queryMessage)
 	check(err)
 
-	updateMessage := "UPDATE messages SET text=? WHERE id=?"
+	updateMessage := fmt.Sprintf("UPDATE messages SET text=%s WHERE id=%s", placeholder1, placeholder2)
 	updateStmt, err := db.Prepare(updateMessage)
 	check(err)
 
-	deleteMessage := "DELETE FROM messages WHERE id=?"
+	deleteMessage := fmt.Sprintf("DELETE FROM messages WHERE id=%s", placeholder1)
 	deleteStmt, err := db.Prepare(deleteMessage)
 	check(err)
 

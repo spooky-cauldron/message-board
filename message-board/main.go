@@ -6,29 +6,36 @@ import (
 	"message-board/database"
 	"message-board/handlers"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+	log.Println("Initializing Service...")
 	db := database.InitSqliteMem()
 	messageService := database.NewMessageService(db)
 
-	r := gin.Default()
+	router := gin.Default()
 
 	getMessageHandler := handlers.GetMessagesHandler{Service: messageService}
-	r.GET("/message", getMessageHandler.Handler)
+	router.GET("/message", getMessageHandler.Handler)
 
 	postMessageHandler := handlers.PostMessagesHandler{Service: messageService}
-	r.POST("/message", postMessageHandler.Handler)
+	router.POST("/message", postMessageHandler.Handler)
 
 	patchMessageHandler := handlers.PatchMessageHandler{Service: messageService}
-	r.PATCH("/message", patchMessageHandler.Handler)
+	router.PATCH("/message", patchMessageHandler.Handler)
 
 	deleteMessageHandler := handlers.DeleteMessageHandler{Service: messageService}
-	r.DELETE("/message/:id", deleteMessageHandler.Handler)
+	router.DELETE("/message/:id", deleteMessageHandler.Handler)
 
-	err := r.Run("localhost:8000")
+	host, ok := os.LookupEnv("HOST")
+	if !ok {
+		host = "localhost:8000"
+	}
+
+	err := router.Run(host)
 
 	if errors.Is(err, http.ErrServerClosed) {
 		log.Println("Server closed.")

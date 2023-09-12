@@ -13,7 +13,6 @@ import (
 func main() {
 	db := database.InitSqliteMem()
 	messageService := database.NewMessageService(db)
-	messageService.InsertMessage("test message")
 
 	r := gin.Default()
 

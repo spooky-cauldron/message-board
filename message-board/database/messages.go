@@ -34,6 +34,7 @@ func NewMessageService(db *sql.DB) *MessageService {
 
 	deleteMessage := "DELETE FROM messages WHERE id=?"
 	deleteStmt, err := db.Prepare(deleteMessage)
+	check(err)
 
 	return &MessageService{
 		db:         db,

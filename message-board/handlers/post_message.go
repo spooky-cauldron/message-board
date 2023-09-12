@@ -15,7 +15,7 @@ type PostMessageBody struct {
 	Text string `json:"text" binding:"required"`
 }
 
-func (handler *PostMessagesHandler) Handler(c *gin.Context) {
+func (h *PostMessagesHandler) Handler(c *gin.Context) {
 	var body PostMessageBody
 	err := c.ShouldBindJSON(&body)
 	if err != nil {
@@ -23,6 +23,6 @@ func (handler *PostMessagesHandler) Handler(c *gin.Context) {
 		return
 	}
 
-	message := handler.Service.InsertMessage(body.Text)
+	message := h.Service.InsertMessage(body.Text)
 	c.JSON(http.StatusCreated, message)
 }

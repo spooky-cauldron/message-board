@@ -44,18 +44,18 @@ func NewMessageService(db *sql.DB) *MessageService {
 	}
 }
 
-func (service *MessageService) InsertMessage(text string) msg.Message {
+func (s *MessageService) InsertMessage(text string) msg.Message {
 	id := uuid.New()
 	log.Printf("Adding message %s to database.\n", id)
 
-	_, err := service.insertStmt.Exec(id, text)
+	_, err := s.insertStmt.Exec(id, text)
 	check(err)
 
 	return msg.Message{Id: id, Text: text}
 }
 
-func (service *MessageService) QueryMessages() []msg.Message {
-	rows, err := service.queryStmt.Query()
+func (s *MessageService) QueryMessages() []msg.Message {
+	rows, err := s.queryStmt.Query()
 	check(err)
 	defer rows.Close()
 
@@ -69,32 +69,32 @@ func (service *MessageService) QueryMessages() []msg.Message {
 	return messages
 }
 
-func (service *MessageService) QueryMessage(id uuid.UUID) msg.Message {
-	queryRow := service.db.QueryRow("SELECT id, text FROM messages WHERE id=?", id)
+func (s *MessageService) QueryMessage(id uuid.UUID) msg.Message {
+	queryRow := s.db.QueryRow("SELECT id, text FROM messages WHERE id=?", id)
 	var message msg.Message
 	queryRow.Scan(&message.Id, &message.Text)
 	return message
 }
 
-func (service *MessageService) UpdateMessage(id uuid.UUID, text string) (msg.Message, error) {
-	message := service.QueryMessage(id)
+func (s *MessageService) UpdateMessage(id uuid.UUID, text string) (msg.Message, error) {
+	message := s.QueryMessage(id)
 	if message.Id == uuid.Nil {
 		return msg.Message{}, ErrNotFound
 	}
 
-	_, err := service.updateStmt.Exec(text, id)
+	_, err := s.updateStmt.Exec(text, id)
 	check(err)
 
 	return msg.Message{Id: id, Text: text}, nil
 }
 
-func (service *MessageService) DeleteMessage(id uuid.UUID) error {
-	message := service.QueryMessage(id)
+func (s *MessageService) DeleteMessage(id uuid.UUID) error {
+	message := s.QueryMessage(id)
 	if message.Id == uuid.Nil {
 		return ErrNotFound
 	}
 
-	_, err := service.deleteStmt.Exec(id)
+	_, err := s.deleteStmt.Exec(id)
 	check(err)
 	return nil
 }

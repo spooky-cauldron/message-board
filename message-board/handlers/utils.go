@@ -3,6 +3,7 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"runtime/debug"
 )
 
 func Cors(w http.ResponseWriter) {
@@ -14,5 +15,6 @@ func Cors(w http.ResponseWriter) {
 func check(err error) {
 	if err != nil {
 		log.Fatal(err)
+		debug.PrintStack()
 	}
 }

@@ -6,7 +6,7 @@ WORKDIR /app
 COPY . .
 RUN go mod download
 
-RUN GOOS=linux go build -o /message-board-main
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o /message-board-main
 
 
 # output step

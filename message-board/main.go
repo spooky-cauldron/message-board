@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"log"
 	"message-board/database"
 	"message-board/handlers"
@@ -15,6 +14,7 @@ import (
 
 func main() {
 	log.Println("Initializing Service...")
+
 	db := initDb()
 	messageService := database.NewMessageService(db)
 
@@ -44,22 +44,19 @@ func main() {
 }
 
 func initDb() *sql.DB {
-	db_host := getEnv("DB_HOST", "localhost")
-	db_port := getEnv("DB_PORT", "5432")
-	db_name := os.Getenv("DB_NAME")
-	db_user := os.Getenv("DB_USER")
-	db_pass := os.Getenv("DB_PASS")
-	db_ssl := getEnv("DB_SSL", "disable")
-	connectionData := fmt.Sprintf(
-		"host=%s port=%s dbname=%s user=%s password=%s sslmode=%s",
-		db_host,
-		db_port,
-		db_name,
-		db_user,
-		db_pass,
-		db_ssl,
-	)
-	db := database.InitPostgres(connectionData)
+	var db *sql.DB
+	switch getEnv("DB_TYPE", "postgres") {
+	case "sqlite-memory":
+		log.Println("Using SQLite in-memory database.")
+		db = database.InitSqliteMem()
+	case "sqlite":
+		dbFile := getEnv("SQLITE_FILE", "messageboard.db")
+		log.Printf("Using SQLite database at file %s\n", dbFile)
+		db = database.InitSqlite(dbFile)
+	default:
+		log.Println("Using Postgres database.")
+		db = database.InitPostgres()
+	}
 	return db
 }
 

@@ -17,6 +17,7 @@ WORKDIR /
 COPY --from=build /message-board-main /message-board-main
 
 ENV HOST=":5000"
+ENV GIN_MODE=release
 
 EXPOSE 5000
 

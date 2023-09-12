@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-
 	"message-board/database"
 	"message-board/handlers"
 	"net/http"
@@ -33,10 +32,7 @@ func main() {
 	deleteMessageHandler := handlers.DeleteMessageHandler{Service: messageService}
 	router.DELETE("/message/:id", deleteMessageHandler.Handler)
 
-	host, ok := os.LookupEnv("HOST")
-	if !ok {
-		host = "localhost:8000"
-	}
+	host := getEnv("HOST", "localhost:8000")
 
 	err := router.Run(host)
 
@@ -48,12 +44,12 @@ func main() {
 }
 
 func initDb() *sql.DB {
-	db_host := os.Getenv("DB_HOST")
-	db_port := os.Getenv("DB_PORT")
+	db_host := getEnv("DB_HOST", "localhost")
+	db_port := getEnv("DB_PORT", "5432")
 	db_name := os.Getenv("DB_NAME")
 	db_user := os.Getenv("DB_USER")
 	db_pass := os.Getenv("DB_PASS")
-	db_ssl := os.Getenv("DB_SSL")
+	db_ssl := getEnv("DB_SSL", "disable")
 	connectionData := fmt.Sprintf(
 		"host=%s port=%s dbname=%s user=%s password=%s sslmode=%s",
 		db_host,
@@ -65,4 +61,12 @@ func initDb() *sql.DB {
 	)
 	db := database.InitPostgres(connectionData)
 	return db
+}
+
+func getEnv(key string, fallback string) string {
+	value, ok := os.LookupEnv(key)
+	if !ok {
+		return fallback
+	}
+	return value
 }

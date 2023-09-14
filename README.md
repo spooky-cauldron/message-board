@@ -3,11 +3,11 @@
 Message board Go application. Multiple database types are available.
 A database is selected by specifying the `DB_TYPE` environment variable.
 
-| Database           | DB_TYPE Variable | Notes                                                                              |
-| ------------------ | ---------------- | ---------------------------------------------------------------------------------- |
-| Postgres (default) | postgres         | Database connection variables include: DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS |
-| SQLite             | sqlite           | Optionally specify SQLite file in `SQLITE_FILE` environment variable.              |
-| SQLite In-Memory   | sqlite-memory    | Temporary in-memory SQLite database. Contents are deleted on service shutdown.     |
+| Database           | DB_TYPE Variable | Notes                                                                                        |
+| ------------------ | ---------------- | -------------------------------------------------------------------------------------------- |
+| Postgres (default) | postgres         | Database connection variables include: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASS` |
+| SQLite             | sqlite           | Optionally specify SQLite file in `SQLITE_FILE` environment variable.                        |
+| SQLite In-Memory   | sqlite-memory    | Temporary in-memory SQLite database. Contents are deleted on service shutdown.               |
 
 ## Run Locally
 
